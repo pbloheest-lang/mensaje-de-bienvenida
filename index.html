@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mensaje de bienvenida · Pablo Hernáez</title>
+<style>
+  :root{--bg:#0f1115;--card:#181b22;--line:#2a2f3a;--txt:#e8eaed;--mut:#9aa0aa;--acc:#e4ff3a}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);line-height:1.45}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 16px 48px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--mut);margin:0 0 20px;font-size:14px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:800px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .card h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 12px}
+  label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+  input[type=text],input[type=url],input[type=tel],select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:#0f1115;color:var(--txt);font-size:14px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg button{flex:1;padding:9px;border-radius:8px;border:1px solid var(--line);background:#0f1115;color:var(--txt);cursor:pointer;font-size:14px}
+  .seg button.on{background:var(--acc);color:#111;border-color:var(--acc);font-weight:600}
+  .chk{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px}
+  textarea{width:100%;min-height:280px;padding:12px;border-radius:8px;border:1px solid var(--line);background:#0f1115;color:var(--txt);font-size:15px;font-family:inherit;resize:vertical}
+  .meta{display:flex;justify-content:space-between;color:var(--mut);font-size:12px;margin-top:6px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .btn{padding:10px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:600;font-size:14px}
+  .btn.pri{background:var(--acc);color:#111}
+  .btn.sec{background:#262b36;color:var(--txt)}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--acc);color:#111;padding:8px 14px;border-radius:8px;font-weight:600;opacity:0;transition:.2s;pointer-events:none}
+  .toast.show{opacity:1}
+  details{margin-top:16px}
+  summary{cursor:pointer;font-weight:600}
+  .help li{margin:6px 0;font-size:14px;color:#cfd3da}
+  .warn{color:#ffb86b;font-size:12px;margin-top:4px;min-height:1em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mensaje de bienvenida a nuevos clientes</h1>
+  <p class="sub">Rellena los datos, elige la red y el estilo, y copia o envía el mensaje. Tus datos fijos se guardan en este navegador.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Tus datos (se guardan)</h2>
+      <label for="miNombre">Tu nombre</label>
+      <input id="miNombre" type="text" value="Pablo">
+      <label for="link">Enlace al cuestionario de valoración inicial</label>
+      <input id="link" type="url" placeholder="https://forms.gle/...">
+      <div class="warn" id="linkWarn"></div>
+
+      <h2 style="margin-top:20px">Cliente</h2>
+      <label>Red social</label>
+      <div class="seg" id="red">
+        <button data-v="whatsapp" class="on">WhatsApp</button>
+        <button data-v="instagram">Instagram</button>
+        <button data-v="tiktok">TikTok</button>
+      </div>
+      <label for="nombre">Nombre del cliente (vacío = plantilla genérica para respuesta automática)</label>
+      <input id="nombre" type="text" placeholder="Ej.: Laura">
+      <div id="telBox">
+        <label for="tel">Teléfono (solo WhatsApp, con prefijo, ej. 34612345678)</label>
+        <input id="tel" type="tel" placeholder="34612345678">
+      </div>
+
+      <label for="estilo">Estilo del mensaje</label>
+      <select id="estilo">
+        <option value="gancho">Con gancho (recomendado)</option>
+        <option value="cercano">Cercano</option>
+        <option value="plazas">Plazas limitadas</option>
+      </select>
+
+      <label class="chk"><input type="checkbox" id="incForm" checked> Incluir enlace al cuestionario</label>
+      <label class="chk"><input type="checkbox" id="incLlamada" checked> Pedir día y hora para la llamada</label>
+    </div>
+
+    <div class="card">
+      <h2>Mensaje</h2>
+      <textarea id="out"></textarea>
+      <div class="meta"><span id="hint"></span><span id="count"></span></div>
+      <div class="actions">
+        <button class="btn pri" id="copiar">Copiar mensaje</button>
+        <button class="btn sec" id="abrir">Abrir chat</button>
+        <button class="btn sec" id="regen">Rehacer desde plantilla</button>
+      </div>
+      <p class="sub" style="margin-top:10px;font-size:12px">Puedes editar el texto a mano antes de copiarlo. «Rehacer» descarta tus cambios.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <details>
+      <summary>Cómo dejarlo automático en cada app (con el nombre del cliente vacío)</summary>
+      <ul class="help">
+        <li><b>WhatsApp Business</b>: Ajustes de empresa → Mensaje de bienvenida → pega la plantilla. Se envía sola al primer mensaje de cada cliente nuevo.</li>
+        <li><b>Instagram</b> (cuenta profesional): desde Meta Business Suite → Bandeja de entrada → Automatizaciones → Respuesta instantánea → pega la plantilla.</li>
+        <li><b>TikTok</b> (cuenta de empresa): Ajustes → Herramientas de empresa → Mensajes directos → Mensaje de bienvenida o respuestas automáticas → pega la plantilla.</li>
+        <li>Los nombres de los menús cambian con las actualizaciones; si no los encuentras, búscalos como «mensaje de bienvenida» o «respuesta automática».</li>
+      </ul>
+    </details>
+  </div>
+</div>
+<div class="toast" id="toast">Copiado</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let red = 'whatsapp';
+
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+
+function b(t){ return red === 'whatsapp' ? '*' + t + '*' : t; }
+
+function construir(){
+  const nombre = $('nombre').value.trim();
+  const yo = $('miNombre').value.trim() || 'Pablo';
+  const link = $('link').value.trim() || '[ENLACE AL CUESTIONARIO]';
+  const incForm = $('incForm').checked;
+  const incLlamada = $('incLlamada').checked;
+  const estilo = $('estilo').value;
+  const hola = nombre ? `¡Hola, ${nombre}!` : '¡Hola!';
+  const p = [];
+
+  if (estilo === 'gancho') {
+    p.push(`${hola} 👋 Soy ${yo}. Gracias por escribirme y por tenerme en cuenta para ayudarte 💪`);
+    p.push('Que hayas dado este paso ya dice mucho: lo que más cuesta es empezar, y eso ya lo has hecho.');
+    if (incForm) p.push(`Para no darte un plan genérico, sino uno hecho para ti, necesito conocer tu caso. Rellena este ${b('cuestionario de valoración inicial')}:\n👉 ${link}`);
+    if (incLlamada) p.push(`Después lo vemos juntos en una llamada corta. ${b('¿Qué día y a qué hora te vendría mejor?')} Dime un par de opciones y te la reservo.`);
+  } else if (estilo === 'cercano') {
+    p.push(`${hola} Soy ${yo}, encantado 😊`);
+    p.push('Muchas gracias por contactar conmigo y por confiar en mí para ayudarte con tu entrenamiento y tu alimentación.');
+    if (incForm) p.push(`Para empezar, me ayudaría mucho que rellenaras este ${b('cuestionario de valoración inicial')}, así conozco tu punto de partida y tus objetivos:\n👉 ${link}`);
+    if (incLlamada) p.push(`Me gustaría hablar contigo por llamada para ver tu caso con calma. ${b('¿Cuándo te vendría mejor?')} Dime el día y la franja horaria que prefieras y me adapto.`);
+  } else {
+    p.push(`${hola} 👋 Soy ${yo}, gracias por escribirme y por pensar en mí para ayudarte.`);
+    p.push('Trabajo con un número reducido de personas para poder hacer un seguimiento cercano a cada una, así que antes de nada quiero conocer bien tu caso.');
+    if (incForm) p.push(`El primer paso es este ${b('cuestionario de valoración inicial')}:\n👉 ${link}`);
+    if (incLlamada) p.push(`Con tus respuestas hacemos una llamada para ver si encajamos y cómo trabajaríamos. ${b('¿Qué día y a qué hora te viene mejor?')} Dímelo y te reservo el hueco.`);
+  }
+  p.push(`¡Hablamos pronto!\n${yo}`);
+  return p.join('\n\n');
+}
+
+function actualizarMeta(){
+  const t = $('out').value;
+  $('count').textContent = t.length + ' caracteres';
+  const generico = !$('nombre').value.trim();
+  $('hint').textContent = generico ? 'Plantilla genérica: válida para respuesta automática' : 'Mensaje personalizado';
+  $('linkWarn').textContent = $('link').value.trim() ? '' : 'Falta el enlace: el mensaje lleva [ENLACE AL CUESTIONARIO]';
+  $('telBox').style.display = red === 'whatsapp' ? '' : 'none';
+  const abrir = $('abrir');
+  if (red === 'whatsapp') { abrir.textContent = $('tel').value.trim() ? 'Enviar por WhatsApp' : 'Abrir WhatsApp'; }
+  else { abrir.textContent = red === 'instagram' ? 'Abrir Instagram' : 'Abrir TikTok'; }
+}
+
+function render(){ $('out').value = construir(); actualizarMeta(); }
+
+function toast(msg){ const el=$('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500); }
+
+async function copiar(){
+  const t = $('out').value;
+  try { await navigator.clipboard.writeText(t); }
+  catch(e){ $('out').select(); document.execCommand('copy'); }
+  toast('Copiado');
+}
+
+$('copiar').onclick = copiar;
+$('regen').onclick = render;
+$('abrir').onclick = async () => {
+  const t = $('out').value;
+  if (red === 'whatsapp') {
+    const tel = $('tel').value.replace(/\D/g,'');
+    const url = tel ? `https://wa.me/${tel}?text=${encodeURIComponent(t)}` : `https://wa.me/?text=${encodeURIComponent(t)}`;
+    window.open(url, '_blank');
+  } else {
+    await copiar();
+    toast('Copiado: pégalo en el chat');
+    window.open(red === 'instagram' ? 'https://www.instagram.com/direct/inbox/' : 'https://www.tiktok.com/messages', '_blank');
+  }
+};
+
+document.querySelectorAll('#red button').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('#red button').forEach(x => x.classList.remove('on'));
+    btn.classList.add('on'); red = btn.dataset.v; render();
+  };
+});
+
+['miNombre','link'].forEach(id => {
+  const v = store.get('pb_' + id); if (v !== null) $(id).value = v;
+  $(id).addEventListener('input', () => { store.set('pb_' + id, $(id).value); render(); });
+});
+const est = store.get('pb_estilo'); if (est) $('estilo').value = est;
+$('estilo').addEventListener('change', () => { store.set('pb_estilo', $('estilo').value); render(); });
+['nombre','incForm','incLlamada'].forEach(id => $(id).addEventListener('input', render));
+$('tel').addEventListener('input', actualizarMeta);
+$('out').addEventListener('input', actualizarMeta);
+
+render();
+</script>
+</body>
+</html>
